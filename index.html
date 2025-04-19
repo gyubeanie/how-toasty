@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Climate Warming Trajectory Survey</title>
+    <link href="https://cdn.tailwindcss.com" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
+    <link rel="stylesheet" href="css/styles.css">
+    <script>
+        // Dark mode detection and handling
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        }
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+            if (event.matches) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        });
+
+        // Configure Tailwind
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#5D5CDE',
+                        'primary-light': '#7A79E3',
+                        'primary-dark': '#4A49B8',
+                        historical: '#3B82F6', // blue-500
+                        prediction: '#EF4444', // red-500
+                        'ssp1': '#10B981', // green-500
+                        'ssp2': '#84CC16', // lime-500
+                        'ssp3': '#FBBF24', // amber-400
+                        'ssp4': '#F97316', // orange-500
+                        'ssp5': '#DC2626', // red-600
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 transition-colors duration-300">
+    <div class="min-h-screen w-full flex flex-col items-center">
+        <header class="w-full py-6 px-4 text-center">
+            <h1 class="text-2xl md:text-3xl font-bold text-primary dark:text-primary-light">Climate Warming Trajectory Survey</h1>
+            <p class="mt-2 text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+                Predict global temperature changes through the year 2100 and compare your prediction with scientific models
+            </p>
+        </header>
+
+        <main class="w-full max-w-4xl px-4 pb-12">
+            <!-- Progress Indicator -->
+            <div class="mb-8">
+                <div class="flex justify-between">
+                    <div class="step-indicator flex flex-col items-center">
+                        <div id="step1-circle" class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white">
+                            1
+                        </div>
+                        <span class="mt-1 text-sm">Instructions</span>
+                    </div>
+                    <div class="flex-1 flex items-center mx-2">
+                        <div class="h-1 w-full bg-gray-200 dark:bg-gray-700">
+                            <div id="progress-line-1" class="h-1 bg-primary" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div class="step-indicator flex flex-col items-center">
+                        <div id="step2-circle" class="w-8 h-8 rounded-full bg-gray-300 dark:bg-gray-700 flex items-center justify-center text-gray-600 dark:text-gray-400">
+                            2
+                        </div>
+                        <span class="mt-1 text-sm">Prediction</span>
+                    </div>
+                    <div class="flex-1 flex items-center mx-2">
+                        <div class="h-1 w-full bg-gray-200 dark:bg-gray-700">
+                            <div id="progress-line-2" class="h-1 bg-primary" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div class="step-indicator flex flex-col items-center">
+                        <div id="step3-circle" class="w-8 h-8 rounded-full bg-gray-300 dark:bg-gray-700 flex items-center justify-center text-gray-600 dark:text-gray-400">
+                            3
+                        </div>
+                        <span class="mt-1 text-sm">Results</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 1: Instructions -->
+            <div id="step-1" class="step-content bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-bold mb-4">Understanding Climate Predictions</h2>
+                
+                <div class="space-y-4">
+                    <p>
+                        This survey allows you to create your own prediction of how global temperatures might change through the year 2100.
+                    </p>
+                    
+                    <div class="bg-blue-50 dark:bg-blue-900/30 p-4 rounded-md">
+                        <h3 class="font-semibold mb-2">What you'll do:</h3>
+                        <ol class="list-decimal pl-5 space-y-2">
+                            <li>View historical temperature data from 1950-2023</li>
+                            <li>Create your own temperature prediction curve by adjusting control points</li>
+                            <li>Compare your prediction with scientific climate models</li>
+                        </ol>
+                    </div>
+                    
+                    <p>
+                        The temperature data shows <strong>anomalies</strong> relative to pre-industrial levels (1850-1900 average).
+                        As of 2023, global temperatures were approximately 1.24°C above pre-industrial levels.
+                    </p>
+                    
+                    <p>
+                        On the next screen, you'll use three control points to shape your prediction:
+                    </p>
+                    
+                    <ul class="list-disc pl-5 space-y-1">
+                        <li>2025 point (fixed year, adjustable temperature)</li>
+                        <li>Middle point (adjustable year and temperature, default at 2050)</li>
+                        <li>2100 point (fixed year, adjustable temperature)</li>
+                    </ul>
+                    
+                    <p>
+                        Your prediction will be compared with scientific climate models based on different socioeconomic pathways (SSPs).
+                    </p>
+                </div>
+                
+                <div class="mt-8 flex justify-end">
+                    <button id="next-to-prediction" class="bg-primary hover:bg-primary-dark text-white px-6 py-2 rounded-md transition-colors">
+                        Continue to Prediction
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 2: Prediction Interface -->
+            <div id="step-2" class="step-content hidden bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-bold mb-4">Create Your Prediction</h2>
+                
+                <p class="mb-4">
+                    The blue line shows historical temperature anomalies from 1950-2023. 
+                    Create your prediction by dragging the control points (red dots) or using the sliders below.
+                </p>
+                
+                <div class="chart-container relative">
+                    <canvas id="prediction-chart" class="w-full h-64 md:h-80"></canvas>
+                    
+                    <!-- Control point values display -->
+                    <div class="control-points-display flex flex-wrap justify-between text-sm mt-2">
+                        <div class="control-point-info">
+                            <span class="font-medium">2025:</span> 
+                            <span id="point1-value">+1.28°C</span>
+                        </div>
+                        <div class="control-point-info">
+                            <span class="font-medium">Mid (<span id="mid-year">2050</span>):</span> 
+                            <span id="point2-value">+1.70°C</span>
+                        </div>
+                        <div class="control-point-info">
+                            <span class="font-medium">2100:</span> 
+                            <span id="point3-value">+2.50°C</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="control-sliders mt-8 space-y-4">
+                    <div>
+                        <label for="point1-slider" class="block mb-1 font-medium">2025 Temperature (°C)</label>
+                        <input 
+                            type="range" 
+                            id="point1-slider" 
+                            min="1.24" 
+                            max="1.5" 
+                            step="0.01" 
+                            value="1.28"
+                            class="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer"
+                        >
+                    </div>
+                    
+                    <div>
+                        <label for="midpoint-year-slider" class="block mb-1 font-medium">Middle Point Year</label>
+                        <input 
+                            type="range" 
+                            id="midpoint-year-slider" 
+                            min="2030" 
+                            max="2090" 
+                            step="1" 
+                            value="2050"
+                            class="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer"
+                        >
+                    </div>
+                    
+                    <div>
+                        <label for="point2-slider" class="block mb-1 font-medium">Middle Point Temperature (°C)</label>
+                        <input 
+                            type="range" 
+                            id="point2-slider" 
+                            min="1.2" 
+                            max="4.0" 
+                            step="0.05" 
+                            value="1.7"
+                            class="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer"
+                        >
+                    </div>
+                    
+                    <div>
+                        <label for="point3-slider" class="block mb-1 font-medium">2100 Temperature (°C)</label>
+                        <input 
+                            type="range" 
+                            id="point3-slider" 
+                            min="1.0" 
+                            max="6.0" 
+                            step="0.05" 
+                            value="2.5"
+                            class="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer"
+                        >
+                    </div>
+                </div>
+                
+                <div class="mt-8 flex justify-between">
+                    <button id="reset-prediction" class="border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 px-4 py-2 rounded-md transition-colors">
+                        Reset
+                    </button>
+                    <div>
+                        <button id="back-to-instructions" class="mr-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 px-4 py-2 rounded-md transition-colors">
+                            Back
+                        </button>
+                        <button id="submit-prediction" class="bg-primary hover:bg-primary-dark text-white px-6 py-2 rounded-md transition-colors">
+                            See Results
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3: Results Comparison -->
+            <div id="step-3" class="step-content hidden bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-bold mb-4">Your Prediction vs. Scientific Models</h2>
+                
+                <div id="loading-screen" class="flex flex-col items-center justify-center py-12">
+                    <div class="loading-spinner mb-4"></div>
+                    <p>Comparing your prediction with scientific models...</p>
+                </div>
+                
+                <div id="results-content" class="hidden">
+                    <p class="mb-4">
+                        Here's how your prediction compares to established scientific climate models:
+                    </p>
+                    
+                    <div class="chart-container relative">
+                        <canvas id="comparison-chart" class="w-full h-64 md:h-80"></canvas>
+                    </div>
+                    
+                    <div class="mt-8">
+                        <h3 class="font-semibold mb-2">About the Climate Models:</h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                            <div class="bg-green-50 dark:bg-green-900/20 p-4 rounded-md border-l-4 border-ssp1">
+                                <h4 class="font-medium">SSP1-1.9: Sustainability</h4>
+                                <p class="text-sm mt-1">Rapid shift to sustainable practices, low greenhouse gas emissions, high climate mitigation.</p>
+                                <p class="text-sm font-bold mt-1">2100 warming: +1.34°C</p>
+                            </div>
+                            
+                            <div class="bg-lime-50 dark:bg-lime-900/20 p-4 rounded-md border-l-4 border-ssp2">
+                                <h4 class="font-medium">SSP2-2.6: Middle of the Road (Low)</h4>
+                                <p class="text-sm mt-1">Social, economic, and technological trends follow historical patterns, moderate mitigation.</p>
+                                <p class="text-sm font-bold mt-1">2100 warming: +1.75°C</p>
+                            </div>
+                            
+                            <div class="bg-amber-50 dark:bg-amber-900/20 p-4 rounded-md border-l-4 border-ssp3">
+                                <h4 class="font-medium">SSP3-4.5: Regional Rivalry (Medium)</h4>
+                                <p class="text-sm mt-1">Focus on national security and self-reliance, slower technological change.</p>
+                                <p class="text-sm font-bold mt-1">2100 warming: +2.62°C</p>
+                            </div>
+                            
+                            <div class="bg-orange-50 dark:bg-orange-900/20 p-4 rounded-md border-l-4 border-ssp4">
+                                <h4 class="font-medium">SSP4-Baseline: Inequality</h4>
+                                <p class="text-sm mt-1">Increasing disparities, technology access limited to high-income areas, minimal mitigation.</p>
+                                <p class="text-sm font-bold mt-1">2100 warming: +3.76°C</p>
+                            </div>
+                            
+                            <div class="md:col-span-2 bg-red-50 dark:bg-red-900/20 p-4 rounded-md border-l-4 border-ssp5">
+                                <h4 class="font-medium">SSP5-Baseline: Fossil-fueled Development</h4>
+                                <p class="text-sm mt-1">Rapid economic growth driven by fossil fuels, increased energy demand, no significant mitigation.</p>
+                                <p class="text-sm font-bold mt-1">2100 warming: +5.05°C</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-8 flex justify-center">
+                        <button id="draw-new-prediction" class="bg-primary hover:bg-primary-dark text-white px-6 py-2 rounded-md transition-colors">
+                            Draw Another Prediction
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
