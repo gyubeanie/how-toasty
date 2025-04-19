@@ -1,0 +1,74 @@
+/* Main styles */
+.control-point {
+    cursor: grab;
+    touch-action: none;
+}
+
+.control-point:active {
+    cursor: grabbing;
+}
+
+.dark .chart-container canvas {
+    filter: invert(0.9) hue-rotate(180deg);
+}
+
+/* Loading animation */
+.loading-spinner {
+    display: inline-block;
+    width: 50px;
+    height: 50px;
+    border: 5px solid rgba(93, 92, 222, 0.3);
+    border-radius: 50%;
+    border-top-color: #5D5CDE;
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Custom chart tooltip styling */
+.custom-tooltip {
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 6px;
+    padding: 8px 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    font-size: 14px;
+    color: #333;
+    border: 1px solid #ddd;
+    pointer-events: none;
+}
+
+.dark .custom-tooltip {
+    background-color: rgba(30, 30, 30, 0.8);
+    color: #f0f0f0;
+    border-color: #444;
+}
+
+/* Make sure slider thumbs are visible in dark mode */
+.dark input[type="range"]::-webkit-slider-thumb {
+    background: #5D5CDE;
+}
+.dark input[type="range"]::-moz-range-thumb {
+    background: #5D5CDE;
+}
+
+/* Tooltip for control points */
+.control-point-tooltip {
+    position: absolute;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    pointer-events: none;
+    transform: translate(-50%, -100%);
+    margin-top: -8px;
+    z-index: 10;
+    white-space: nowrap;
+}
+
+.dark .control-point-tooltip {
+    background-color: rgba(255, 255, 255, 0.8);
+    color: #333;
+}
